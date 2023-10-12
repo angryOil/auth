@@ -2,11 +2,8 @@ package main
 
 import (
 	"auth/cmd/bun/migrations"
-	"database/sql"
+	"auth/repository/infla"
 	"fmt"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"github.com/uptrace/bun/migrate"
 	"github.com/urfave/cli/v2"
 	"log"
@@ -15,9 +12,7 @@ import (
 )
 
 func main() {
-	dsn := "postgres://postgres:@localhost:5432/postgres?sslmode=disable"
-	db := bun.NewDB(sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn))), pgdialect.New())
-
+	db := infla.NewDB()
 	app := &cli.App{
 		Name: "bun",
 		Commands: []*cli.Command{
