@@ -1,4 +1,4 @@
-module auth
+module github.com/angryOil/auth
 
 go 1.21
 
