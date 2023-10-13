@@ -47,7 +47,6 @@ func (p Provider) ValidToken(token string) (bool, error) {
 		}
 		return []byte(p.secretKey), nil
 	}
-	fmt.Println("cert", p.secretKey)
 	tok, err := jwt.ParseWithClaims(token, &claims, key)
 	return tok.Valid, err
 }

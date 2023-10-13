@@ -6,7 +6,6 @@ import (
 	"auth/repository"
 	"context"
 	"errors"
-	"fmt"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -42,19 +41,28 @@ func (us UserService) Login(ctx context.Context, reqDomain domain.User) (string,
 	if err != nil {
 		return "", err
 	}
-	getDomain := getDomains[0]
-	if getDomain.Id == 0 {
+	if len(getDomains) == 0 {
 		return "", errors.New("user not found")
 	}
-	getDomain, _ = domain.CreateUser(getDomain.Email, getDomain.Password, getDomain.Role)
-	fmt.Println("getDo", getDomain)
+	getDomain := getDomains[0]
+	//getDomain, _ = domain.CreateUser(getDomain.Email, getDomain.Password, getDomain.Role)
 	isMatched := checkPasswordHash(reqDomain.Password, getDomain.Password)
-	fmt.Println("matched getDomain", getDomain)
 	if !isMatched {
 		return "", errors.New("password not matched")
 	}
-	token, err := p.CreateToken(getDomain)
+
+	//
+	resDomain := toResponseDomain(getDomain)
+	token, err := p.CreateToken(resDomain)
 	return token, nil
+}
+
+func toResponseDomain(u domain.User) domain.User {
+	return domain.User{
+		Id:    u.Id,
+		Email: u.Email,
+		Role:  u.Role,
+	}
 }
 
 func (us UserService) Verify(ctx context.Context, token string) (bool, error) {

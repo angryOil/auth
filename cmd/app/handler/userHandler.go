@@ -75,13 +75,11 @@ func verifyToken(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	result, err := c.Verify(r.Context(), token)
-	fmt.Println("err?", err)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		fmt.Println("err;;;,", result)
 		w.Write([]byte(string(err.Error())))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte(fmt.Sprintln("", result)))
+	fmt.Fprintf(w, "{result:%b}", result)
 }
