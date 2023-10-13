@@ -4,19 +4,32 @@ import (
 	"auth/controller/req"
 	"auth/service"
 	"context"
-	"encoding/json"
+	"fmt"
 )
 
 type UserController struct {
-	uService service.IUserService[string]
+	service service.IUserService
 }
 
-func NewController() UserController {
-	return UserController{}
+func NewController(serv service.IUserService) UserController {
+	return UserController{service: serv}
 }
 
-func (c UserController) CreateUser(ctx context.Context, dto req.CreateDto) (string, error) {
-	data, err := json.Marshal(dto)
+func (c UserController) CreateUser(ctx context.Context, dto req.CreateDto) error {
+	err := c.service.CreateUser(ctx, dto.ToDomain())
+	return err
+}
 
-	return string(data), err
+func (c UserController) Login(ctx context.Context, dto req.LoginDto) (string, error) {
+	fmt.Println("dt", dto)
+	token, err := c.service.Login(ctx, dto.ToDomain())
+	if err != nil {
+		return "", err
+	}
+	return token, nil
+}
+
+func (c UserController) Verify(ctx context.Context, token string) (bool, error) {
+	result, err := c.service.Verify(ctx, token)
+	return result, err
 }

@@ -3,7 +3,9 @@ package handler
 import (
 	"auth/controller"
 	"auth/controller/req"
-	"auth/jwt"
+	"auth/repository"
+	"auth/repository/infla"
+	"auth/service"
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
@@ -14,11 +16,13 @@ func NewHandler() http.Handler {
 	m := mux.NewRouter()
 	m.HandleFunc("/users", createUser).Methods(http.MethodPost)
 	m.HandleFunc("/users/verify", verifyToken).Methods(http.MethodPost)
+	m.HandleFunc("/users/login", login).Methods(http.MethodPost)
 	return m
 }
 
+// token 으로 응답을 할것이므로 [string] type
 func getController() controller.UserController {
-	return controller.NewController()
+	return controller.NewController(service.NewUserService(repository.NewRepository(infla.NewDB())))
 }
 
 var c = getController()
@@ -32,7 +36,7 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	result, err := c.CreateUser(r.Context(), *reqDto)
+	err = c.CreateUser(r.Context(), *reqDto)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -41,23 +45,40 @@ func createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(string(result)))
+
 }
 
-var p = jwt.NewProvider("hello_world_this_is_secretKey")
+func login(w http.ResponseWriter, r *http.Request) {
+	loginDto := &req.LoginDto{}
+	err := json.NewDecoder(r.Body).Decode(&loginDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	token, err := c.Login(r.Context(), *loginDto)
+	fmt.Println("loginDto?", loginDto)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+		return
+	}
+	w.Write([]byte(token))
+
+}
 
 func verifyToken(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
-	fmt.Println("token::")
-	p.GetPayLoad(token)
 	if token == "" {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte("no token"))
 		return
 	}
-	result, err := p.ValidToken(token)
+	result, err := c.Verify(r.Context(), token)
+	fmt.Println("err?", err)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		fmt.Println("err;;;,", result)
 		w.Write([]byte(string(err.Error())))
 		return
 	}

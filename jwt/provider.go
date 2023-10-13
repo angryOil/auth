@@ -2,11 +2,9 @@ package jwt
 
 import (
 	"auth/domain"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
-	"strings"
 	"time"
 )
 
@@ -34,30 +32,22 @@ func (p Provider) CreateToken(u domain.User) (string, error) {
 			ExpiresAt: jwt.At(time.Now().Add(time.Minute * 15)),
 		},
 	}
+	fmt.Println("se", p.secretKey)
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &at)
 	signedAuthToken, err := token.SignedString([]byte(p.secretKey))
 	return signedAuthToken, err
 }
 
 func (p Provider) ValidToken(token string) (bool, error) {
+	fmt.Println(token)
 	claims := AuthTokenClaims{}
 	key := func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, errors.New("Unexpected Signing Method")
+		}
 		return []byte(p.secretKey), nil
 	}
-
+	fmt.Println("cert", p.secretKey)
 	tok, err := jwt.ParseWithClaims(token, &claims, key)
 	return tok.Valid, err
-}
-
-func (p Provider) GetPayLoad(token string) (string, error) {
-	strs := strings.Split(token, ".")
-	fmt.Println(strs)
-	if len(strs) != 3 {
-		fmt.Println("num:", len(strs))
-		return "", errors.New("is not token")
-	}
-
-	payload := strs[1]
-	result, err := base64.StdEncoding.DecodeString(payload)
-	return string(result), err
 }

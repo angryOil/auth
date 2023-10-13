@@ -2,7 +2,6 @@ package jwt
 
 import (
 	"auth/domain"
-	"encoding/json"
 	"fmt"
 	"github.com/stretchr/testify/assert"
 	"testing"
@@ -18,11 +17,10 @@ func TestProvider_CreateToken(t *testing.T) {
 	fmt.Println(createdToken)
 }
 
-func TestProvider_GetPayLoad(t *testing.T) {
-	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJlbWFpbCI6ImppcG1qMTJAbmF2ZXIuY29tIiwicm9sZSI6WyJ1c2VyIl0sImV4cCI6MTY5NzEzMjA2Mi44NzIxMTd9.tAss76ospDXuH5PEm-1_Z4st95YUEhpDlG8sBJIb1wQ"
-	result, err := p.GetPayLoad(token)
+func TestProvider_ValidToken(t *testing.T) {
+	//token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo4LCJlbWFpbCI6ImppcG1qMTIzQG5hdmVyLmNvbSIsInJvbGUiOlsiVVNFUiJdLCJleHAiOjE2OTcxNjMwMzQuMzk2OTYyMn0.x7Aov7WFUaUbqS1K4SdrWpNJ5yT0KKx-7v7e5nsRft0"
+	token := "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjowLCJlbWFpbCI6ImppcG1qQG5hdmVyLmNvbSIsInJvbGUiOlsidXNlciJdLCJleHAiOjE2OTcxNjMyMTAuMTYxODUyOH0.X0NdGy94SpCRi0Of8hHsSU7lAqcfEDfwI5xc9q1qCHY"
+	result, err := p.ValidToken(token)
 	assert.NoError(t, err)
-	u := domain.User{}
-	json.Unmarshal([]byte(result), &u)
-	fmt.Println(u)
+	assert.True(t, result)
 }

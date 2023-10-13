@@ -5,8 +5,8 @@ import (
 	"context"
 )
 
-type IUserService[T any] interface {
+type IUserService interface {
 	CreateUser(ctx context.Context, user domain.User) error
-	Login(ctx context.Context, user domain.User) (T, error)
-	Verify(ctx context.Context, verify T) error
+	Login(ctx context.Context, user domain.User) (string, error)
+	Verify(ctx context.Context, verify string) (bool, error)
 }

@@ -1,15 +1,31 @@
 package repository
 
-import "auth/domain"
+import (
+	"auth/domain"
+	"auth/repository/model"
+	"context"
+	"github.com/uptrace/bun"
+)
 
 type UserRepository struct {
-	name string
+	db *bun.DB
 }
 
-func (r UserRepository) Create(u domain.User) error {
-	return nil
+func NewRepository(db *bun.DB) UserRepository {
+	return UserRepository{db: db}
 }
 
-func (r UserRepository) GetUser(userId string) domain.User {
-	return domain.User{}
+func (r UserRepository) Create(ctx context.Context, u domain.User) error {
+	m := model.ToModel(u)
+	_, err := r.db.NewInsert().Model(&m).Exec(ctx)
+	return err
+}
+
+func (r UserRepository) GetUser(ctx context.Context, userId string) ([]domain.User, error) {
+	var result []model.User
+	err := r.db.NewSelect().Model(&result).Where("email=?", userId).Scan(ctx)
+	if err != nil {
+		return []domain.User{}, err
+	}
+	return model.ToDomainList(result), nil
 }
