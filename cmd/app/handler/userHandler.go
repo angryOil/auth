@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
+	"strings"
 )
 
 type UserHandler struct {
@@ -31,8 +33,8 @@ func (uh UserHandler) createUser(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(err.Error()))
 		return
 	}
-	err = uh.c.CreateUser(r.Context(), *reqDto)
 
+	err = uh.c.CreateUser(r.Context(), *reqDto)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -40,22 +42,30 @@ func (uh UserHandler) createUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-
 }
 
 func (uh UserHandler) login(w http.ResponseWriter, r *http.Request) {
 	loginDto := &req.LoginDto{}
-	err := json.NewDecoder(r.Body).Decode(&loginDto)
+	err := json.NewDecoder(r.Body).Decode(loginDto)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		return
 	}
+
 	token, err := uh.c.Login(r.Context(), *loginDto)
 	fmt.Println("loginDto?", loginDto)
+
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
+		// id , password 가 없는경우
+		if strings.Contains(err.Error(), "login fail") {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("login fail password or email is not matched"))
+			return
+		}
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("internal server error sorry"))
+		log.Println(err)
 		return
 	}
 	w.Write([]byte(token))
@@ -65,16 +75,16 @@ func (uh UserHandler) login(w http.ResponseWriter, r *http.Request) {
 func (uh UserHandler) verifyToken(w http.ResponseWriter, r *http.Request) {
 	token := r.URL.Query().Get("token")
 	if token == "" {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte("no token"))
 		return
 	}
 	result, err := uh.c.Verify(r.Context(), token)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
+		w.WriteHeader(http.StatusUnauthorized)
 		w.Write([]byte(string(err.Error())))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
-	fmt.Fprintf(w, "{result:%b}", result)
+	fmt.Fprintf(w, "%t", result)
 }

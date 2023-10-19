@@ -8,10 +8,10 @@ import (
 )
 
 type UserRepository struct {
-	db *bun.DB
+	db bun.IDB
 }
 
-func NewRepository(db *bun.DB) UserRepository {
+func NewRepository(db bun.IDB) UserRepository {
 	return UserRepository{db: db}
 }
 

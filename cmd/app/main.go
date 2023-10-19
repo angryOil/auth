@@ -3,6 +3,7 @@ package main
 import (
 	"auth/cmd/app/handler"
 	"auth/controller"
+	"auth/jwt"
 	"auth/repository"
 	"auth/repository/infla"
 	"auth/service"
@@ -16,5 +17,5 @@ func main() {
 }
 
 func getController() controller.IController {
-	return controller.NewController(service.NewUserService(repository.NewRepository(infla.NewDB())))
+	return controller.NewController(service.NewUserService(repository.NewRepository(infla.NewDB()), jwt.NewProvider("this_is_secretKey")))
 }
