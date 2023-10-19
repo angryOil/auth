@@ -42,13 +42,13 @@ func (us UserService) Login(ctx context.Context, reqDomain domain.User) (string,
 		return "", err
 	}
 	if len(getDomains) == 0 {
-		return "", errors.New("user not found")
+		return "", errors.New("login fail user not found")
 	}
 	getDomain := getDomains[0]
 	//getDomain, _ = domain.CreateUser(getDomain.Email, getDomain.Password, getDomain.Role)
 	isMatched := checkPasswordHash(reqDomain.Password, getDomain.Password)
 	if !isMatched {
-		return "", errors.New("password not matched")
+		return "", errors.New("login fail password not matched")
 	}
 
 	//
