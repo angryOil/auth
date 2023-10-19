@@ -33,7 +33,9 @@ func validateCreateUser(email string, password string) error {
 		return errors.New("email 형식이 올바르지 않습니다")
 	}
 	if password == "" || utf8.RuneCountInString(password) < 4 {
-		return errors.New("비밀번호는 4글자 이상이어야 합니다")
+		return errors.New("password is too short")
+	} else if utf8.RuneCountInString(password) > 72 {
+		return errors.New("password is too long")
 	}
 	return nil
 }

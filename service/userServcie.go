@@ -20,6 +20,9 @@ func NewUserService(repo repository.IRepository, p jwt.Provider) UserService {
 }
 
 func (us UserService) CreateUser(ctx context.Context, u domain.User) error {
+	if len(u.Password) < 4 {
+		return errors.New("password is too short")
+	}
 	hashed, err := hashPassword(u.Password)
 	if err != nil {
 		return err
@@ -29,7 +32,6 @@ func (us UserService) CreateUser(ctx context.Context, u domain.User) error {
 	if err != nil {
 		return err
 	}
-
 	err = us.repo.Create(ctx, createDomain)
 	return err
 }
@@ -43,13 +45,11 @@ func (us UserService) Login(ctx context.Context, reqDomain domain.User) (string,
 		return "", errors.New("login fail user not found")
 	}
 	getDomain := getDomains[0]
-	//getDomain, _ = domain.CreateUser(getDomain.Email, getDomain.Password, getDomain.Role)
 	isMatched := checkPasswordHash(reqDomain.Password, getDomain.Password)
 	if !isMatched {
 		return "", errors.New("login fail password not matched")
 	}
 
-	//
 	resDomain := toResponseDomain(getDomain)
 	token, err := us.p.CreateToken(resDomain)
 	return token, nil
