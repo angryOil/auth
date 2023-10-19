@@ -10,11 +10,13 @@ import (
 )
 
 type UserService struct {
+	//todo 현재 jwt provider를 interface 로 할지 구현체로 그대로 할지 결정
+	p    jwt.Provider
 	repo repository.IRepository
 }
 
-func NewUserService(repo repository.IRepository) UserService {
-	return UserService{repo: repo}
+func NewUserService(repo repository.IRepository, p jwt.Provider) UserService {
+	return UserService{repo: repo, p: p}
 }
 
 func (us UserService) CreateUser(ctx context.Context, u domain.User) error {
@@ -31,10 +33,6 @@ func (us UserService) CreateUser(ctx context.Context, u domain.User) error {
 	err = us.repo.Create(ctx, createDomain)
 	return err
 }
-
-// todo token 이 실제 어디서 사용되야할지 고민하기
-
-var p = jwt.NewProvider("hello warmOil world this is secret key thank you")
 
 func (us UserService) Login(ctx context.Context, reqDomain domain.User) (string, error) {
 	getDomains, err := us.repo.GetUser(ctx, reqDomain.Email)
@@ -53,7 +51,7 @@ func (us UserService) Login(ctx context.Context, reqDomain domain.User) (string,
 
 	//
 	resDomain := toResponseDomain(getDomain)
-	token, err := p.CreateToken(resDomain)
+	token, err := us.p.CreateToken(resDomain)
 	return token, nil
 }
 
@@ -66,7 +64,7 @@ func toResponseDomain(u domain.User) domain.User {
 }
 
 func (us UserService) Verify(ctx context.Context, token string) (bool, error) {
-	result, err := p.ValidToken(token)
+	result, err := us.p.ValidToken(token)
 	return result, err
 }
 
