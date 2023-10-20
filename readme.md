@@ -41,3 +41,5 @@ go get -u github.com/alecthomas/template
 # swagger json 생성   swag init -g [project main path].go
 swag init -g cmd/app/main.go
 ```
+
+## [스웨거 링크](localhost:8082/swagger/index.html)
