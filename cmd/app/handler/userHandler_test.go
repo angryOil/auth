@@ -204,7 +204,7 @@ func (s *UserHandlerTestSuite) TestUserHandler_verifyToken() {
 		ts := httptest.NewServer(s.h)
 		defer ts.Close()
 
-		re, err := http.NewRequest("POST", ts.URL+"/users/verify?token=jipmj12@naver.com", nil)
+		re, err := http.NewRequest("POST", ts.URL+"/users/verify", strings.NewReader("jipmj12@naver.com"))
 		assert.NoError(s.T(), err)
 
 		resp, err := http.DefaultClient.Do(re)
@@ -220,7 +220,7 @@ func (s *UserHandlerTestSuite) TestUserHandler_verifyToken() {
 		ts := httptest.NewServer(s.h)
 		defer ts.Close()
 
-		re, err := http.NewRequest("POST", ts.URL+"/users/verify?token=InvalidToken@naver.com", nil)
+		re, err := http.NewRequest("POST", ts.URL+"/users/verify", strings.NewReader("invalid token"))
 		assert.NoError(s.T(), err)
 
 		resp, err := http.DefaultClient.Do(re)
@@ -246,6 +246,6 @@ func (s *UserHandlerTestSuite) TestUserHandler_verifyToken() {
 		readBody, err := io.ReadAll(resp.Body)
 		assert.NoError(s.T(), err)
 		assert.Contains(s.T(), string(readBody), "no token")
-		assert.Equal(s.T(), http.StatusUnauthorized, resp.StatusCode)
+		assert.Equal(s.T(), http.StatusBadRequest, resp.StatusCode)
 	})
 }

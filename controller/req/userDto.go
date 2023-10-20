@@ -18,8 +18,8 @@ func (cd CreateDto) ToDomain() domain.User {
 }
 
 type LoginDto struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Email    string `json:"email" example:"example@test.com"`
+	Password string `json:"password" example:"1234"`
 }
 
 func (ld LoginDto) ToDomain() domain.User {
