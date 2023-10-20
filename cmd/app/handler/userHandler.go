@@ -24,6 +24,18 @@ func NewHandler(c controller.IController) http.Handler {
 	return m
 }
 
+// createUser godoc
+// @Summary Request createUser
+// @Description 유저를 생성합니다
+// @Tags users
+// @Param createUser body req.CreateDto true "Create user"
+// @Accept  json
+// @Produce  json
+// @Success 201 {object} bool
+// @Failure 401 {object} bool
+// @Failure 400 "bad request"
+// @Failure 409 "duplicate email"
+// @Router /users [post]
 func (uh UserHandler) createUser(w http.ResponseWriter, r *http.Request) {
 	reqDto := &req.CreateDto{}
 
@@ -36,6 +48,11 @@ func (uh UserHandler) createUser(w http.ResponseWriter, r *http.Request) {
 
 	err = uh.c.CreateUser(r.Context(), *reqDto)
 	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key") {
+			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte(err.Error()))
+			return
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		return
