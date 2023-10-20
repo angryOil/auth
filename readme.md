@@ -42,4 +42,4 @@ go get -u github.com/alecthomas/template
 swag init -g cmd/app/main.go
 ```
 
-## [스웨거 링크](localhost:8082/swagger/index.html)
+## [스웨거 링크](http://localhost:8081/swagger/index.html)
