@@ -30,7 +30,7 @@ func (p Provider) CreateToken(u domain.User) (string, error) {
 		Email:  u.Email,
 		Role:   u.Role,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: jwt.At(time.Now().Add(time.Minute * 15)),
+			ExpiresAt: jwt.At(time.Now().Add(time.Minute * 30)),
 		},
 	}
 	fmt.Println("se", p.secretKey)
