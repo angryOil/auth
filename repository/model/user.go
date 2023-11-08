@@ -2,6 +2,7 @@ package model
 
 import (
 	"auth/domain"
+	"auth/repository/req"
 	"github.com/uptrace/bun"
 	"strings"
 	"time"
@@ -19,25 +20,23 @@ type User struct {
 	LastUpdatedAt time.Time `bun:"last_updated_at,notnull"`
 }
 
-func ToModel(d domain.User) User {
-	return User{Id: d.Id,
-		Email:         d.Email,
-		Password:      d.Password,
-		Role:          strings.Join(d.Role, ","),
-		IsDeleted:     false,
-		CreatedAt:     d.CreatedAt,
-		LastUpdatedAt: time.Time{},
+func ToCreateModel(c req.Create) User {
+	return User{
+		Email:     c.Email,
+		Password:  c.Password,
+		Role:      strings.Join(c.Role, ","),
+		CreatedAt: c.CreatedAt,
 	}
 }
 
 func (u User) ToDomain() domain.User {
-	return domain.User{
-		Id:        u.Id,
-		Email:     u.Email,
-		Password:  u.Password,
-		Role:      strings.Split(u.Role, ","),
-		CreatedAt: u.CreatedAt,
-	}
+	return domain.NewUserBuilder().
+		Id(u.Id).
+		Email(u.Email).
+		Password(u.Password).
+		Role(strings.Split(u.Role, ",")).
+		CreatedAt(u.CreatedAt).
+		Build()
 }
 
 func ToDomainList(list []User) []domain.User {
