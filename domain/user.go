@@ -1,40 +1,45 @@
 package domain
 
 import (
+	"auth/domain/vo"
 	"errors"
 	"net/mail"
 	"time"
 	"unicode/utf8"
 )
 
-type User struct {
-	Id        int
-	Email     string
-	Password  string
-	Role      []string
-	CreatedAt time.Time
+var _ User = (*user)(nil)
+
+type User interface {
+	ValidCreate() error
+
+	ToGetUser() vo.GetUser
 }
 
-func CreateUser(email string, password string, role []string) (User, error) {
-	err := validateCreateUser(email, password)
-	if err != nil {
-		return User{}, err
+type user struct {
+	id        int
+	email     string
+	password  string
+	role      []string
+	createdAt time.Time
+}
+
+func (u *user) ToGetUser() vo.GetUser {
+	return vo.GetUser{
+		Id:       u.id,
+		Email:    u.email,
+		Password: u.password,
+		Role:     u.role,
 	}
-	return User{
-		Email:     email,
-		Password:  password,
-		Role:      role,
-		CreatedAt: time.Now(),
-	}, nil
 }
 
-func validateCreateUser(email string, password string) error {
-	if _, err := mail.ParseAddress(email); err != nil {
+func (u *user) ValidCreate() error {
+	if _, err := mail.ParseAddress(u.email); err != nil {
 		return errors.New("email 형식이 올바르지 않습니다")
 	}
-	if password == "" || utf8.RuneCountInString(password) < 4 {
+	if utf8.RuneCountInString(u.password) < 4 {
 		return errors.New("password is too short")
-	} else if utf8.RuneCountInString(password) > 72 {
+	} else if utf8.RuneCountInString(u.password) > 72 {
 		return errors.New("password is too long")
 	}
 	return nil

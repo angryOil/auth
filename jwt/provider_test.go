@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"auth/domain"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
 	"strings"
@@ -23,8 +22,7 @@ func (s *TestProviderSuite) SetupSuite() {
 
 func (s *TestProviderSuite) TestProvider_CreateToken() {
 	s.Run("토큰 생성후 확인한다 jwt 는 .이 3개다", func() {
-		u, err := domain.CreateUser("jipmj@naver.com", "1234", []string{"user"})
-		assert.NoError(s.T(), err)
+		u := ReqUser{1, "jipmj@naver.com", []string{"user"}}
 		createdToken, err := s.p.CreateToken(u)
 		assert.NoError(s.T(), err)
 		splits := strings.Split(createdToken, ".")
@@ -35,11 +33,12 @@ func (s *TestProviderSuite) TestProvider_CreateToken() {
 
 func (s *TestProviderSuite) TestProvider_ValidToken() {
 	s.Run("토큰 검증", func() {
-		token, err := s.p.CreateToken(domain.User{
-			Id:    33,
-			Email: "test@email.com",
-			Role:  nil,
+		token, err := s.p.CreateToken(ReqUser{
+			UserId: 33,
+			Email:  "test@email.com",
+			Role:   nil,
 		})
+
 		assert.NoError(s.T(), err)
 		result, err := s.p.ValidToken(token)
 		assert.NoError(s.T(), err)

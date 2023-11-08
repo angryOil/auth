@@ -2,7 +2,7 @@ package controller
 
 import (
 	"auth/controller/req"
-	"auth/domain"
+	req2 "auth/service/req"
 	"context"
 	"errors"
 	"github.com/stretchr/testify/assert"
@@ -15,7 +15,7 @@ import (
 type mockService struct {
 }
 
-func (ms mockService) CreateUser(ctx context.Context, user domain.User) error {
+func (ms mockService) CreateUser(ctx context.Context, user req2.CreateUser) error {
 	if user.Email == "" {
 		return errors.New("email is empty")
 	}
@@ -25,7 +25,7 @@ func (ms mockService) CreateUser(ctx context.Context, user domain.User) error {
 	return nil
 }
 
-func (ms mockService) Login(ctx context.Context, user domain.User) (string, error) {
+func (ms mockService) Login(ctx context.Context, user req2.Login) (string, error) {
 	if user.Email != "jipmj12@naver.com" {
 		return "", errors.New("login fail email or password is wrong")
 	}

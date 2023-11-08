@@ -2,10 +2,11 @@ package repository
 
 import (
 	"auth/domain"
+	req2 "auth/repository/req"
 	"context"
 )
 
 type IRepository interface {
-	Create(ctx context.Context, u domain.User) error
-	GetUser(ctx context.Context, userId string) ([]domain.User, error)
+	Create(context.Context, req2.Create) error
+	GetUser(context.Context, req2.GetUser) ([]domain.User, error)
 }

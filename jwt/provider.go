@@ -1,7 +1,6 @@
 package jwt
 
 import (
-	"auth/domain"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go/v4"
@@ -17,18 +16,20 @@ func NewProvider(secretKey string) Provider {
 	return Provider{secretKey: secretKey}
 }
 
-type AuthTokenClaims struct {
+type ReqUser struct {
 	UserId int      `json:"user_id"`
 	Email  string   `json:"email"`
 	Role   []string `json:"role"`
+}
+
+type AuthTokenClaims struct {
+	ReqUser
 	jwt.StandardClaims
 }
 
-func (p Provider) CreateToken(u domain.User) (string, error) {
+func (p Provider) CreateToken(u ReqUser) (string, error) {
 	at := AuthTokenClaims{
-		UserId: u.Id,
-		Email:  u.Email,
-		Role:   u.Role,
+		ReqUser: u,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: jwt.At(time.Now().Add(time.Minute * 30)),
 		},

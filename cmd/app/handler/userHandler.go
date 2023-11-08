@@ -36,6 +36,11 @@ func (uh UserHandler) createUser(w http.ResponseWriter, r *http.Request) {
 
 	err = uh.c.CreateUser(r.Context(), *reqDto)
 	if err != nil {
+		if strings.Contains(err.Error(), "duplicate key") {
+			w.WriteHeader(http.StatusConflict)
+			w.Write([]byte(err.Error()))
+			return
+		}
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
 		return
